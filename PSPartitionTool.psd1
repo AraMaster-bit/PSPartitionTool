@@ -1,11 +1,11 @@
 @{
     RootModule            = 'PSPartitionTool.psm1'
-    ModuleVersion         = '1.0'
-    GUID                  = 'e3c2a1f4-8b9d-4c7e-9f2d-1a2b3c4d5e6f'
+    ModuleVersion         = '0.1.0'
+    GUID                  = 'c3a691d4-9271-4183-8e8d-cf55d1fbf67e'
     Author                = 'AraMaster-bit'
-    PowerShellVersion     = '5.1', '7.6.4'
+    PowerShellVersion     = '5.1'
     CompatiblePSEditions  = @('Desktop', 'Core')
-    Description           = 'Disk Partitioning Tools.'
+    Description           = 'PowerShell module for automated disk preparation, GPT initialization, partition creation, and filesystem formatting.'
     FunctionsToExport     = @(
         'Initialize-DiskLayout'
     )
