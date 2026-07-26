@@ -62,7 +62,7 @@ Checks the partition style of disk 2 and converts it to GPT if required.
 This function is executed after the disk has been cleared. It ensures that the disk uses the GPT partition style before new partitions are created.
 #>
 function Initialize-DiskPartitionStyle{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
@@ -118,7 +118,7 @@ This function is executed after the disk has been initialized with the GPT parti
 number of partitions and formats each one using the selected file system.
 #>
 function New-DiskPartitions{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
