@@ -21,6 +21,7 @@ function Clear-DiskPartitions{
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param(
         [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
     if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Remove all partitions")){
@@ -64,6 +65,7 @@ function Initialize-DiskPartitionStyle{
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
         [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
     if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Set partition style to GPT")){
@@ -119,12 +121,15 @@ function New-DiskPartitions{
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
         [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 10)]
         [Int32]$DiskNumber,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('exFAT', 'NTFS')]
         [String]$FileSystem,
 
         [Parameter(Mandatory = $true)]
+        [ValidateRange(1, 3)]
         [Int32]$PartitionCount
     )
     if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Create $PartitionCount partition(s) and format them as $FileSystem")){
