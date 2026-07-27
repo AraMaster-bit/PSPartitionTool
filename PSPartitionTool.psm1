@@ -202,7 +202,7 @@ function Initialize-DiskLayout{
         try{
             $DiskInfo = Get-Disk -Number $DiskNumber -ErrorAction Stop
         }       catch{
-            throw "The specified disk could not be found. $_"
+            Write-Error "The specified disk could not be found."
             return
         }
         if($DiskInfo.IsSystem -eq $true){
