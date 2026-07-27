@@ -135,23 +135,23 @@ function New-DiskPartitions{
         switch($PartitionCount){
             '1'{
                 New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol A" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 Write-Verbose "Partition created successfully."
             }
             '2'{
                 New-Partition -DiskNumber $DiskNumber -Size $HalfSize -AssignDriveLetter -ErrorAction Stop |
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol A" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop |
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol B" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 Write-Verbose "Both partitions were created successfully."
             }
             '3'{
                 New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol A" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol B" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
-                    Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol C" -Confirm:$false -ErrorAction Stop | Out-Null
+                    Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                 Write-Verbose "All partitions were created successfully."
             }
         }
