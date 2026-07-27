@@ -18,13 +18,12 @@ This function is executed as the second step of the disk initialization workflow
 from the selected disk and verifies that the disk is online before continuing.
 #>
 function Clear-DiskPartitions{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
-    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Remove all partitions")){
         try{
             Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -confirm:$false -ErrorAction Stop
         }   catch{
@@ -40,7 +39,6 @@ function Clear-DiskPartitions{
         }   catch{
             $PSCmdlet.ThrowTerminatingError($_)
         }
-    }
 }
 <#
 .SYNOPSIS
@@ -62,13 +60,12 @@ Checks the partition style of disk 2 and converts it to GPT if required.
 This function is executed after the disk has been cleared. It ensures that the disk uses the GPT partition style before new partitions are created.
 #>
 function Initialize-DiskPartitionStyle{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
-    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Set partition style to GPT")){
         try{
             switch((Get-Disk -Number $DiskNumber).PartitionStyle){
                 'RAW'{
@@ -90,7 +87,6 @@ function Initialize-DiskPartitionStyle{
         }   catch{
             $PSCmdlet.ThrowTerminatingError($_)
         }
-    }
 }
 <#
 .SYNOPSIS
@@ -118,7 +114,7 @@ This function is executed after the disk has been initialized with the GPT parti
 number of partitions and formats each one using the selected file system.
 #>
 function New-DiskPartitions{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
@@ -132,7 +128,6 @@ function New-DiskPartitions{
         [ValidateRange(1, 3)]
         [Int32]$PartitionCount
     )
-    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Create $PartitionCount partition(s) and format them as $FileSystem")){
         $DiskSize = (Get-Disk -Number $DiskNumber).Size
         $HalfSize = [math]::Floor($DiskSize / 2)
         $ThirdSize = [math]::Floor($DiskSize / 3)
@@ -163,7 +158,6 @@ function New-DiskPartitions{
         }   catch{
             $PSCmdlet.ThrowTerminatingError($_)
         }
-    }
 }
 <#
 .SYNOPSIS
@@ -190,7 +184,7 @@ Initializes disk 2, converts it to GPT if required, creates two partitions, and 
 This is the main function of the script. It validates the selected disk and orchestrates the entire disk initialization workflow.
 #>
 function Initialize-DiskLayout{
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
