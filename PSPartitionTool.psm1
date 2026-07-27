@@ -198,7 +198,7 @@ function Initialize-DiskLayout{
         [ValidateRange(1, 3)]
         [Int32]$PartitionCount
     )
-    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Initialize disk layout")){
+    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "All partitions will be removed")){
         try{
             $DiskInfo = Get-Disk -Number $DiskNumber -ErrorAction Stop
         }       catch{
