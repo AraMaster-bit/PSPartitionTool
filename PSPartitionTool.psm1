@@ -28,6 +28,7 @@ function Clear-DiskPartitions{
         Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -confirm:$false -ErrorAction Stop
     }   catch{
         $PSCmdlet.ThrowTerminatingError($_)
+        return
     }
     try{
         if((Get-Disk -Number $DiskNumber).IsOffline){
@@ -38,6 +39,7 @@ function Clear-DiskPartitions{
             }
     }   catch{
         $PSCmdlet.ThrowTerminatingError($_)
+        return
     }
 }
 <#
@@ -86,6 +88,7 @@ function Initialize-DiskPartitionStyle{
         }
     }   catch{
         $PSCmdlet.ThrowTerminatingError($_)
+        return
     }
 }
 <#
@@ -157,6 +160,7 @@ function New-DiskPartitions{
         }
     }   catch{
         $PSCmdlet.ThrowTerminatingError($_)
+        return
     }
 }
 <#
