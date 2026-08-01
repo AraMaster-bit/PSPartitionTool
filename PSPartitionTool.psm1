@@ -132,7 +132,7 @@ function New-DiskPartitions{
                     New-Partition -DiskNumber $DiskNumber -Size $HalfSize -AssignDriveLetter -ErrorAction Stop |
                         Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                     New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop |
-                        Format-Volume -FileSystem $FileSystem -NewFileSystemLabel "Vol B" -Confirm:$false -ErrorAction Stop | Out-Null
+                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
                     Write-Verbose "Both partitions were created successfully."
                 }
                 '3'{
