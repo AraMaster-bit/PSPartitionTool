@@ -1,4 +1,4 @@
-<#
+<#[
 .SYNOPSIS
 Removes all partitions from the specified disk.
 
@@ -16,7 +16,7 @@ Removes all partitions from disk 2 and brings the disk online if necessary.
 .NOTES
 This function is executed as the second step of the disk initialization workflow. It removes all existing partitions 
 from the selected disk and verifies that the disk is online before continuing.
-#>
+]#>
 function Clear-DiskPartitions{
     [CmdletBinding(SupportsShouldProcess = $true)]
     Param(
@@ -42,7 +42,7 @@ function Clear-DiskPartitions{
         }
     }
 }
-<#
+<#[
 .SYNOPSIS
 Initializes the partition style of the specified disk.
 
@@ -60,7 +60,7 @@ Checks the partition style of disk 2 and converts it to GPT if required.
 
 .NOTES
 This function is executed after the disk has been cleared. It ensures that the disk uses the GPT partition style before new partitions are created.
-#>
+]#>
 function Initialize-DiskPartitionStyle{
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -92,7 +92,7 @@ function Initialize-DiskPartitionStyle{
         }
     }
 }
-<#
+<#[
 .SYNOPSIS
 Creates and formats new disk partitions.
 
@@ -116,7 +116,7 @@ Creates two partitions on disk 2 and formats both partitions using NTFS.
 .NOTES
 This function is executed after the disk has been initialized with the GPT partition style. It creates the requested 
 number of partitions and formats each one using the selected file system.
-#>
+]#>
 function New-DiskPartitions{
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -165,7 +165,7 @@ function New-DiskPartitions{
         }
     }
 }
-<#
+<#[
 .SYNOPSIS
 Initializes the disk layout.
 
@@ -188,7 +188,7 @@ Initializes disk 2, converts it to GPT if required, creates two partitions, and 
 
 .NOTES
 This is the main function of the script. It validates the selected disk and orchestrates the entire disk initialization workflow.
-#>
+]#>
 function Initialize-DiskLayout{
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param(
