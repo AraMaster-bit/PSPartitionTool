@@ -8,11 +8,6 @@ Clears all partitions from the specified disk and ensures that the disk is onlin
 .PARAMETER DiskNumber
 Specifies the disk number to process.
 
-.EXAMPLE
-PS> Clear-DiskPartitions -DiskNumber 2
-
-Removes all partitions from disk 2 and brings the disk online if necessary.
-
 .NOTES
 This function is executed as the second step of the disk initialization workflow. It removes all existing partitions 
 from the selected disk and verifies that the disk is online before continuing.
@@ -52,11 +47,6 @@ it is converted to GPT. If the disk already uses GPT, no changes are made.
 
 .PARAMETER DiskNumber
 Specifies the disk number to process.
-
-.EXAMPLE
-PS> Initialize-DiskPartitionStyle -DiskNumber 2
-
-Checks the partition style of disk 2 and converts it to GPT if required.
 
 .NOTES
 This function is executed after the disk has been cleared. It ensures that the disk uses the GPT partition style before new partitions are created.
@@ -107,11 +97,6 @@ Specifies the file system used to format the new partitions.
 
 .PARAMETER PartitionCount
 Specifies the number of partitions to create.
-
-.EXAMPLE
-PS> New-DiskPartitions -DiskNumber 2 -FileSystem NTFS -PartitionCount 2
-
-Creates two partitions on disk 2 and formats both partitions using NTFS.
 
 .NOTES
 This function is executed after the disk has been initialized with the GPT partition style. It creates the requested 
