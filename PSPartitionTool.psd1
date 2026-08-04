@@ -7,7 +7,7 @@
     CompatiblePSEditions  = @('Desktop', 'Core')
     Description           = 'PowerShell module for automated disk preparation, GPT initialization, partition creation, and filesystem formatting.'
     FunctionsToExport     = @(
-        'Initialize-DiskLayout'
+        'Clear-Partition'
     )
     RequiredModules       = @()
 }
