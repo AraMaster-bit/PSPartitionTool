@@ -51,7 +51,7 @@ Specifies the disk number to process.
 This function is executed after the disk has been cleared. It ensures that the disk uses the GPT partition style before new partitions are created.
 #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
         [Int32]$DiskNumber
