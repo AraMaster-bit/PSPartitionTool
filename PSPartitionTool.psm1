@@ -14,29 +14,26 @@ This function is executed as the second step of the disk initialization workflow
 from the selected disk and verifies that the disk is online before continuing.
 #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory = $true)]
-        [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
-    if($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Remove all partitions.")){
-        try{
-            Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -confirm:$false -ErrorAction Stop
-        }   catch{
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
-        try{
-            if((Get-Disk -Number $DiskNumber).IsOffline){
-                Write-Verbose "Bringing the disk online..."
-                Get-Disk -Number $DiskNumber | Set-Disk -IsOffline $false -ErrorAction Stop
-            }   else{
-                    Write-Verbose "The disk is already online."
-                }
-        }   catch{
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
-        }
+    try{
+        Clear-Disk -Number $DiskNumber -RemoveData -RemoveOEM -ErrorAction Stop
+    }   catch{
+        $PSCmdlet.ThrowTerminatingError($_)
+    }
+    try{
+        if((Get-Disk -Number $DiskNumber).IsOffline){
+            Write-Verbose "Bringing the disk online..."
+            Get-Disk -Number $DiskNumber | Set-Disk -IsOffline $false -ErrorAction Stop
+        }   else{
+                Write-Verbose "The disk is already online."
+            }
+    }   catch{
+        $PSCmdlet.ThrowTerminatingError($_)
+    }
 }
 function Initialize-DiskPartitionStyle{
 <#
@@ -57,31 +54,28 @@ This function is executed after the disk has been cleared. It ensures that the d
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $true)]
-        [ValidateRange(0, 10)]
         [Int32]$DiskNumber
     )
-    if($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Initialize Disk.")){
-        try{
-            switch((Get-Disk -Number $DiskNumber -ErrorAction Stop).PartitionStyle){
-                'RAW'{
-                    Write-Verbose "Initializing the disk using the GPT partition style."
-                    Initialize-Disk -Number $DiskNumber -PartitionStyle GPT -ErrorAction Stop
-                }
-                'Unknown'{
-                    Write-Verbose "Initializing the disk using the GPT partition style."
-                    Initialize-Disk -Number $DiskNumber -PartitionStyle GPT -ErrorAction Stop
-                }
-                'MBR'{
-                    Write-Verbose "Converting the partition style from MBR to GPT."
-                    Get-Disk -Number $DiskNumber | Set-Disk -PartitionStyle GPT -ErrorAction Stop
-                }
-                'GPT'{
-                    Write-Verbose "The disk already uses the GPT partition style."
-                }
+    try{
+        switch((Get-Disk -Number $DiskNumber -ErrorAction Stop).PartitionStyle){
+            'RAW'{
+                Write-Verbose "Initializing the disk using the GPT partition style."
+                Initialize-Disk -Number $DiskNumber -PartitionStyle GPT -ErrorAction Stop
             }
-        }   catch{
-            $PSCmdlet.ThrowTerminatingError($_)
+            'Unknown'{
+                Write-Verbose "Initializing the disk using the GPT partition style."
+                Initialize-Disk -Number $DiskNumber -PartitionStyle GPT -ErrorAction Stop
+            }
+            'MBR'{
+                Write-Verbose "Converting the partition style from MBR to GPT."
+                Get-Disk -Number $DiskNumber | Set-Disk -PartitionStyle GPT -ErrorAction Stop
+            }
+            'GPT'{
+                Write-Verbose "The disk already uses the GPT partition style."
+            }
         }
+    }   catch{
+        $PSCmdlet.ThrowTerminatingError($_)
     }
 }
 function New-DiskPartitions{
@@ -106,51 +100,46 @@ This function is executed after the disk has been initialized with the GPT parti
 number of partitions and formats each one using the selected file system.
 #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [ValidateRange(0, 10)]
         [Int32]$DiskNumber,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet('exFAT', 'NTFS')]
         [String]$FileSystem,
 
         [Parameter(Mandatory = $true)]
-        [ValidateRange(1, 3)]
         [Int32]$PartitionCount
     )
-    if($PSCmdlet.ShouldProcess("Disk $DiskNumber", "Creating new partitions.")){
-        $DiskSize = (Get-Disk -Number $DiskNumber -ErrorAction Stop).Size
-        $HalfSize = [math]::Floor($DiskSize / 2)
-        $ThirdSize = [math]::Floor($DiskSize / 3)
-        try{
-            switch($PartitionCount){
-                '1'{
-                    New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    Write-Verbose "Partition created successfully."
-                }
-                '2'{
-                    New-Partition -DiskNumber $DiskNumber -Size $HalfSize -AssignDriveLetter -ErrorAction Stop |
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop |
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    Write-Verbose "Both partitions were created successfully."
-                }
-                '3'{
-                    New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
-                        Format-Volume -FileSystem $FileSystem -Confirm:$false -ErrorAction Stop | Out-Null
-                    Write-Verbose "All partitions were created successfully."
-                }
+    $DiskSize = (Get-Disk -Number $DiskNumber -ErrorAction Stop).Size
+    $HalfSize = [math]::Floor($DiskSize / 2)
+    $ThirdSize = [math]::Floor($DiskSize / 3)
+    try{
+        switch($PartitionCount){
+            '1'{
+                New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                Write-Verbose "Partition created successfully."
             }
-        }   catch{
-            $PSCmdlet.ThrowTerminatingError($_)
+            '2'{
+                New-Partition -DiskNumber $DiskNumber -Size $HalfSize -AssignDriveLetter -ErrorAction Stop |
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop |
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                Write-Verbose "Both partitions were created successfully."
+            }
+            '3'{
+                New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                New-Partition -DiskNumber $DiskNumber -Size $ThirdSize -AssignDriveLetter -ErrorAction Stop |
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                New-Partition -DiskNumber $DiskNumber -UseMaximumSize -AssignDriveLetter -ErrorAction Stop | 
+                    Format-Volume -FileSystem $FileSystem -ErrorAction Stop | Out-Null
+                Write-Verbose "All partitions were created successfully."
+            }
         }
+    }   catch{
+        $PSCmdlet.ThrowTerminatingError($_)
     }
 }
 function Clear-Partition{
@@ -179,7 +168,7 @@ Initializes disk 2, converts it to GPT if required, creates two partitions, and 
 This is the main function of the script. It validates the selected disk and orchestrates the entire disk initialization workflow.
 #>
 
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory = $true)]
         [ValidateRange(0, 10)]
@@ -193,7 +182,7 @@ This is the main function of the script. It validates the selected disk and orch
         [ValidateRange(1, 3)]
         [Int32]$PartitionCount
     )
-    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "All partitions will be removed")){
+    if ($PSCmdlet.ShouldProcess("Disk $DiskNumber", "The partitions will be cleaned and reformatted will be applied.")){
         try{
             $DiskInfo = Get-Disk -Number $DiskNumber -ErrorAction Stop
         }       catch{
