@@ -1,6 +1,6 @@
 @{
     RootModule            = 'PSPartitionTool.psm1'
-    ModuleVersion         = '0.1.0'
+    ModuleVersion         = '0.1.1'
     GUID                  = 'c3a691d4-9271-4183-8e8d-cf55d1fbf67e'
     Author                = 'Ara'
     PowerShellVersion     = '5.1'
