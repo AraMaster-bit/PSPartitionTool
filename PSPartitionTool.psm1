@@ -1,3 +1,120 @@
+function Start-PartitionTool {
+<#
+.SYNOPSIS
+Displays the available disks before starting the partition workflow.
+
+.DESCRIPTION
+Lists the disks and then invokes Initialize-PartitionTool. Use this function when you want to
+review the available disks before PowerShell requests the mandatory parameters.
+
+.PARAMETER DiskNumber
+Specifies the number of the disk to process. If omitted, PowerShell requests it after listing
+the available disks.
+
+.PARAMETER FileSystem
+Specifies the file system to use: NTFS or exFAT. If omitted, PowerShell requests it after
+listing the available disks.
+
+.PARAMETER PartitionCount
+Specifies the number of partitions to create, from one to two. If omitted, PowerShell
+requests it after listing the available disks.
+
+.PARAMETER NewName
+Specifies the file system label for the new partitions.
+
+.PARAMETER Force
+Allows processing a disk marked as a system or boot disk.
+
+.EXAMPLE
+PS> Start-PartitionTool
+
+Displays the disks and starts the interactive parameter prompt.
+
+.EXAMPLE
+PS> Start-PartitionTool -Verbose
+
+Displays the disks, requests the mandatory parameters, and shows detailed progress messages.
+
+.EXAMPLE
+PS> Start-PartitionTool -WhatIf
+
+Displays the disks, requests the mandatory parameters, and previews the operations without
+modifying the selected disk.
+
+.EXAMPLE
+PS> Start-PartitionTool -DiskNumber 2 -FileSystem NTFS -PartitionCount 2 -NewName Data -Force
+
+Displays the disks and initializes disk 2 with two NTFS partitions labelled Data. The Force
+switch allows processing a system or boot disk after explicit verification.
+#>
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param (
+        [ValidateRange(0, 10)]
+        [Int32]$DiskNumber,
+
+        [ValidateSet('exFAT', 'NTFS')]
+        [String]$FileSystem,
+
+        [ValidateRange(1, 2)]
+        [Int32]$PartitionCount,
+
+        [String]$NewName,
+
+        [Switch]$Force
+    )
+    try{
+        Get-Disk -ErrorAction Stop | Format-Table
+        Initialize-PartitionTool @PSBoundParameters
+    }   catch{
+        $PSCmdlet.ThrowTerminatingError($_)
+    }
+}
+function Initialize-PartitionTool {
+<#
+.NOTES
+This is an internal implementation function called by Start-PartitionTool. It orchestrates
+validation, clearing, partition style configuration, partition creation, and formatting.
+The selected disk must not contain the operating system. Existing data on the selected disk is removed.
+#>
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(0, 10)]
+        [Int32]$DiskNumber,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('exFAT', 'NTFS')]
+        [String]$FileSystem,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(1, 2)]
+        [Int32]$PartitionCount,
+
+        [String]$NewName,
+
+        [Switch]$Force
+    )
+    $DiskInfo = Test-DiskReady -DiskNumber $DiskNumber -Force:$Force
+    $Target = "Disk $($DiskInfo.Number) - $($DiskInfo.FriendlyName) - $([math]::Round($DiskInfo.Size / 1GB, 2)) GB"
+    if ($PSCmdlet.ShouldProcess("$Target", "Clear, partition and format as $FileSystem")) {
+        try {
+            Initialize-ClearPartitions `
+                -DiskNumber $DiskNumber `
+                -Force:$Force
+        
+            Initialize-StylePartition `
+                -DiskNumber $DiskNumber
+
+            Initialize-NewPartitions `
+                -DiskNumber $DiskNumber `
+                -FileSystem $FileSystem `
+                -PartitionCount $PartitionCount `
+                -NewName $NewName
+        }   catch {
+            $PSCmdlet.ThrowTerminatingError($_)
+        }
+    }
+}
 function Test-DiskReady {
 <#
 .NOTES
@@ -142,123 +259,6 @@ disk approximately in half, and the selected file system and label are applied t
             }
         }
     }   catch {
-        $PSCmdlet.ThrowTerminatingError($_)
-    }
-}
-function Initialize-PartitionTool {
-<#
-.NOTES
-This is an internal implementation function called by Start-PartitionTool. It orchestrates
-validation, clearing, partition style configuration, partition creation, and formatting.
-The selected disk must not contain the operating system. Existing data on the selected disk is removed.
-#>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateRange(0, 10)]
-        [Int32]$DiskNumber,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('exFAT', 'NTFS')]
-        [String]$FileSystem,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateRange(1, 2)]
-        [Int32]$PartitionCount,
-
-        [String]$NewName,
-
-        [Switch]$Force
-    )
-    $DiskInfo = Test-DiskReady -DiskNumber $DiskNumber -Force:$Force
-    $Target = "Disk $($DiskInfo.Number) - $($DiskInfo.FriendlyName) - $([math]::Round($DiskInfo.Size / 1GB, 2)) GB"
-    if ($PSCmdlet.ShouldProcess("$Target", "Clear, partition and format as $FileSystem")) {
-        try {
-            Initialize-ClearPartitions `
-                -DiskNumber $DiskNumber `
-                -Force:$Force
-        
-            Initialize-StylePartition `
-                -DiskNumber $DiskNumber
-
-            Initialize-NewPartitions `
-                -DiskNumber $DiskNumber `
-                -FileSystem $FileSystem `
-                -PartitionCount $PartitionCount `
-                -NewName $NewName
-        }   catch {
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
-    }
-}
-function Start-PartitionTool {
-<#
-.SYNOPSIS
-Displays the available disks before starting the partition workflow.
-
-.DESCRIPTION
-Lists the disks and then invokes Initialize-PartitionTool. Use this function when you want to
-review the available disks before PowerShell requests the mandatory parameters.
-
-.PARAMETER DiskNumber
-Specifies the number of the disk to process. If omitted, PowerShell requests it after listing
-the available disks.
-
-.PARAMETER FileSystem
-Specifies the file system to use: NTFS or exFAT. If omitted, PowerShell requests it after
-listing the available disks.
-
-.PARAMETER PartitionCount
-Specifies the number of partitions to create, from one to two. If omitted, PowerShell
-requests it after listing the available disks.
-
-.PARAMETER NewName
-Specifies the file system label for the new partitions.
-
-.PARAMETER Force
-Allows processing a disk marked as a system or boot disk.
-
-.EXAMPLE
-PS> Start-PartitionTool
-
-Displays the disks and starts the interactive parameter prompt.
-
-.EXAMPLE
-PS> Start-PartitionTool -Verbose
-
-Displays the disks, requests the mandatory parameters, and shows detailed progress messages.
-
-.EXAMPLE
-PS> Start-PartitionTool -WhatIf
-
-Displays the disks, requests the mandatory parameters, and previews the operations without
-modifying the selected disk.
-
-.EXAMPLE
-PS> Start-PartitionTool -DiskNumber 2 -FileSystem NTFS -PartitionCount 2 -NewName Data -Force
-
-Displays the disks and initializes disk 2 with two NTFS partitions labelled Data. The Force
-switch allows processing a system or boot disk after explicit verification.
-#>
-    [CmdletBinding(SupportsShouldProcess = $true)]
-    param (
-        [ValidateRange(0, 10)]
-        [Int32]$DiskNumber,
-
-        [ValidateSet('exFAT', 'NTFS')]
-        [String]$FileSystem,
-
-        [ValidateRange(1, 2)]
-        [Int32]$PartitionCount,
-
-        [String]$NewName,
-
-        [Switch]$Force
-    )
-    try{
-        Get-Disk -ErrorAction Stop | Format-Table
-        Initialize-PartitionTool @PSBoundParameters
-    }   catch{
         $PSCmdlet.ThrowTerminatingError($_)
     }
 }
