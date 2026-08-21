@@ -1,42 +1,31 @@
 # PSPartitionTool
 
-PowerShell module for automated disk preparation, partition management, and filesystem initialization.
+PowerShell module for preparing non-system disks. It removes existing partitions, configures GPT,
+and creates one or two NTFS or exFAT partitions.
 
-## Overview
+> WARNING: The selected disk is erased. Verify the disk number before continuing.
 
-PSPartitionTool is a PowerShell module designed to automate the preparation of non-operating system disks.
+## Usage
 
-The module performs a complete disk initialization workflow:
-- Validates the selected disk.
-- Detects and prevents operations on disks containing the operating system.
-- Supports an explicit `-Force` switch for erasing a disk that contains an external operating system or boot files.
-- Removes existing partitions.
-- Initializes or converts the disk to GPT partition style.
-- Creates a custom partition layout.
-- Formats partitions using NTFS or exFAT.
-
-## Features
-
-- Operating system disk detection for safety.
-- Complete removal of existing partitions.
-- Automatic GPT partition style configuration.
-- Support for MBR to GPT conversion.
-- Creation of 1 to 3 partitions.
-- NTFS and exFAT filesystem support.
-- PowerShell `-WhatIf` and `-Confirm` support.
-- Verbose execution output.
-
-## Force option
-
-By default, the module blocks disks marked as system or boot disks. Use `-Force` only when you
-have verified that the selected disk is the external disk you intend to erase:
+Import the module and execute its public function:
 
 ```powershell
-Clear-Partition -DiskNumber 2 -FileSystem NTFS -PartitionCount 1 -Force
+Import-Module .\PSPartitionTool.psd1
+Start-PartitionTool
 ```
 
-The `-Force` switch does not bypass the checks for read-only or clustered disks. The operation
-still supports `-WhatIf`, `-Confirm`, and `-Verbose`.
+`Start-PartitionTool` displays the available disks and then invokes the internal partition
+workflow. PowerShell requests the mandatory parameters after displaying the disks. The selected
+disk is erased, so verify the disk number before continuing.
+
+You can also provide the parameters directly:
+
+```powershell
+Start-PartitionTool -DiskNumber 2 -FileSystem NTFS -PartitionCount 2 -NewName Data -Verbose
+```
+
+Use `-Force` only after verifying that the selected system or boot disk can be erased. Use
+`-WhatIf` to preview the operation without modifying the disk.
 
 ## Requirements
 
